@@ -1,0 +1,165 @@
+recharge:订单表{
+    id:id号
+    sanfan_tunnelid:所属三方通道
+    platform_tunnelid:所属平台通道
+    m_id:商户id
+    status:订单状态，（1-以请求未分配到订单， 2-分配到订单未支付，3-支付完成）
+    created_at:创建时间
+    finished_at:完成支付时间
+    callback_begin_time:下游开始回调时间
+    callback_finsh_time:下游回调完成时间
+    callback_status:回调状态（1未进行回调 2已回调未返回 3回调完成）
+    callback_times:下游回调次数
+    mer_order_id:商户订单号
+    platform_order_id:平台订单号
+    up_order_id:上游平台订单号
+    order_money:订单金额
+    pay_money:实付金额
+    sanfan_id:所属三方，
+    pay_message:三方请求支付过程信息
+    query_message:三方查单过程信息
+}
+up_message:上下游请求，查单,回调信息{
+    id:'id号'
+    order_id:'所属订单号'
+    up_pay_content:'上游请求支付返回'
+    up_query_content:'上游查单返回'
+    up_callback_message:'上游回调返回'
+    created_at:创建时间
+    updated_at:更新时间
+}
+
+sanfang:三方表{
+    id:id号
+    name:三方名称，
+    mer_id:商户号
+    key:秘钥
+    params:其他参数
+    status:状态
+    created_at:创建时间
+    updated_at:更新时间
+    deleted_at:删除时间
+}
+
+sanfang_tunnel:三方通道表{
+    id:id号
+    parent_id:所属三方
+    payway:所属支付方式
+    platform_tunnelid:所属平台通道
+    success_order:匹配成功订单数，
+    fail_order:匹配失败订单数
+    pass_code:通道编码
+    status:通道状态:(1:开启，2关闭)
+    rate:费率
+    fixed:是否固定金额（1固定金额，2不固定金额）
+    fixed_money:固定金额(多个金额以逗号隔开)
+    min:最少金额
+    max:最大金额
+    created_at:创建时间
+    updated_at:更新时间
+}
+down_callback:下游回调信息表{
+    id:id号
+    message:回调信息
+    order_id:订单号
+    created_at:创建时间
+    updated_at:更新时间
+}
+mer:商户信息表{
+    id:id号
+    mer_id:商户号
+    key:商户秘钥
+    phone:商户联系电话
+    telegram:商户联系电报号
+    qq:商户联系qq
+    email:商户联系邮箱
+    login_name:商户后台登陆名
+    login_password:商户后台登陆秘钥
+    pay_password:支付密码
+    google_password:商户谷歌秘钥串
+    created_at:商户创建时间
+    updated_at:商户更新时间
+}
+payway:支付方式表{
+    id:id号
+    cn_name:支付方式中文名称
+    logo:支付方式logo
+    created_at:创建时间
+    updated_at:更新时间
+    status:状态（1正常，2禁用）
+}
+platform_tunnel:平台通道{
+    id：id号
+    cn_name:通道名称
+    pass_code:平台通道编码
+    payway:所属支付方式
+    created_at:创建时间
+    updated_at:更新时间
+    status:状态（1正常，2禁用）
+}
+recharge_white_list:支付白名单{
+    id:id号
+    sanfang_id:三方id
+    white:白名单(多个以逗号分割开)
+    created_at:创建时间
+    updated_at:更新时间
+}
+tunnel_rate:通道费率{
+    id:id号
+    platform_tunnelid:平台通道id
+    rate:费率
+    created_at:创建时间
+    updated_at:更新时间
+}
+recharge_money_change:商户帐变表{
+    id:id号
+    mer_id:商户id
+    order_money:订单金额
+    before_money:帐变之前余额
+    after_money:帐变之后余额
+    true_money:商户收取金额
+    fee_money:服务费
+    order_id:所属订单号
+    created_at:创建时间
+    updated_at:更新时间
+}
+recharge_withdraw:商户提现记录{
+    id:'id号'
+    order_money:订单金额
+    before_money:帐变之前余额
+    after_money:帐变之后余额
+    order_id:订单号
+    bank_name:所属银行
+    bank_no:提现银行卡
+    account_name:提现人姓名
+    created_at:创建时间
+    updated_at:更新时间
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+今日工作
+1.对接
