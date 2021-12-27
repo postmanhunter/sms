@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Apis;
 use App\Http\Requests\Admin\SendRequest;
 use App\Http\Sms\Qiniu;
+use App\Http\Sms\Tx;
 use App\Models\Admin\ServiceModel;
 use App\Models\Admin\TempModel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -20,7 +21,6 @@ class SendController extends Apis
         // $file = 'storage/uploads/664bdb3db075d6a89ede207b2c32f3bf.xlsx';
         $public = public_path();
         $path = $public.'/'.$file;
-
         $reader = new Xlsx();
         $spreadsheet = $reader->load($path);
     
@@ -40,17 +40,23 @@ class SendController extends Apis
             $val1 = json_decode($val,true);
             $params[$val1['title']] = $val1['value'];
         }
-        foreach($temp_param as $v){
-            $v1 = json_decode($v,true);
-            $params['temp_params'][] = $v1['title'];
+        if ($temp_param) {
+            foreach($temp_param as $v){
+                $v1 = json_decode($v,true);
+                $params['temp_params'][] = $v1['title'];
+            }
         }
+       
         $params['temp_id'] = $request->temp_id;
         $params['service_id'] = $service_params->id;
         $class = '';
         switch($request->service_id){
             //七牛云
             case 1:
-                $class = new Qiniu(); 
+                $temp = 1; 
+                break;
+            case 3:
+                $temp = 3;
                 break;
             default;
                 $temp =-1;
@@ -65,8 +71,11 @@ class SendController extends Apis
                     'message' =>$v_data,
                     'params' =>$params,
                 ];
+
                 $rabbitInstance->pushDelayMsg($data,'sms_push',$delay);
                 $delay += $request->time;
+                // $Tx = new Tx();
+                // dd($Tx->send($v_data,$params));
             }
            return $this->response([]);
         }
