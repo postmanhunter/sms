@@ -23,8 +23,9 @@ class Apis extends BaseController
 
     public function __construct(Request $request)
     {
-        $this->redis = $this->getRedisInstance();
-
+        if(env("REDIS_STATUS")==1){
+            $this->redis = $this->getRedisInstance();
+        }
     }
 
 
