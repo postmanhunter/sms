@@ -20,6 +20,7 @@ class SmsPush{
         RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel){
             $service_id = $data['params']['service_id'];
             list($result,$error) = $class[$service_id]->send($data['message'],$data['params']);
+            var_dump($result,$service_id);
             $insert = [
                 'mobile'=>$data['message'][0],
                 'created_at' => date('Y-m-d H:i:s'),
