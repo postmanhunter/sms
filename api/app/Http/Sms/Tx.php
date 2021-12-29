@@ -55,7 +55,7 @@ class Tx{
             $paramters = [];
             $index = 1;
             foreach($params['temp_params'] as $v){
-                $paramters[] = $message[$index++];
+                $paramters[] = (string)$message[$index++];
             }
             $req->TemplateParamSet = $paramters;
         
