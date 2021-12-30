@@ -32,7 +32,9 @@ export default {
         },
         async getMessageNum(){
             let data = await this.http('/api/get_message_num');
-            this.num = data.data.num;
+            if(data.code==200000){
+                this.num = data.data.num;
+            }
         },
         async stop(){
             this.$confirm('是否暂停短信发送, 是否继续?', '提示', {
