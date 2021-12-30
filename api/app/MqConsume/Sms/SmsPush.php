@@ -18,9 +18,9 @@ class SmsPush{
         ];
         $recordModel = new RecordModel();
         RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel){
+            
             $service_id = $data['params']['service_id'];
             list($result,$error) = $class[$service_id]->send($data['message'],$data['params']);
-            var_dump($result,$service_id);
             $insert = [
                 'mobile'=>$data['message'][0],
                 'created_at' => date('Y-m-d H:i:s'),
@@ -30,26 +30,34 @@ class SmsPush{
             switch($service_id) {
                 case 1:
                     //七牛云
-                    if($error !== null){
-                        $insert['status'] = 2;
-                        $insert['reason'] = $error;
+                    if(empty($result)){
                         //发送失败；
+                        $insert['status'] = 2;
+                        $insert['reason'] = $error->message();
                     }else {
                         //发送成功；
                         $insert['request_id'] = $result['job_id'];
                         $insert['status'] = 1;
+                        $data['request_id'] = $result['job_id'];
                     }
                     break;
                 case 3:
                     //腾讯云
                     $insert['request_id'] = $result['RequestId'];
                     $insert['reason'] = $result['message'];
-                 
+                
                     $insert['status'] = $result['status'];
-                  
+                    $data['mobile'] = $data['message'][0];
                     break;
             }
-            $recordModel->add($insert);
+            $id = $recordModel->add($insert);
+
+            //请求成功在发送查单(七牛云查单，腾讯回调)
+           if($service_id==1 && $insert['status']==1){
+               $data['message_id'] = $id;
+               RabbitmqHelper::getInstance()->pushDelayMsg($data,'query_sms_status',20);
+           }
+           
         },false,function(){
             //这里可以重新访问数据库和redis，保活mysql以及redis的socket连接，因为mysql和redis的socket连接默认8小时没有连接，服务端会主动断开客户端的连接
         });

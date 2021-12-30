@@ -23,6 +23,10 @@ Route::namespace('App\Http\Controllers\Admin')->group(function(){
     Route::Post('upload','UploadController@index');//上传文件
     Route::Post('send','SendController@send');//发送短信
     Route::Post('get_temp_list','TempController@getTempList');//获取数据列表
+    Route::Post('delete_queue','SendController@delete');//删除队列
+    Route::Post('get_message_num','SendController@getMessageNUm');//获取发送记录
+    Route::Post('get_message_status','SendController@getMessageStatus');//获取发送记录
+    Route::Post('callback','SendController@callback');//获取发送记录
 });
 
 //主后台模块
@@ -41,6 +45,7 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     
     Route::Post('get_web_info','WebController@getInfo');//获取网站数据
     Route::Post('get_record_list','RecordController@getList');//获取发送记录
+    
 
    
 

@@ -5,6 +5,7 @@ require_once __DIR__.'/../../../vendor/autoload.php';
 use TencentCloud\Sms\V20210111\SmsClient;
 // 导入要请求接口对应的Request类
 use TencentCloud\Sms\V20210111\Models\SendSmsRequest;
+use TencentCloud\Sms\V20210111\Models\PullSmsSendStatusRequest;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
 use TencentCloud\Common\Credential;
 // 导入可选配置类

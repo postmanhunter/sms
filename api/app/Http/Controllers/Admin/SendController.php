@@ -10,9 +10,11 @@ use App\Models\Admin\TempModel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use App\Helper\RabbitmqHelper;
 use App\Models\Admin\RecordModel;
+use App\Helper\LoggerHelper;
 
 class SendController extends Apis
 {
+    use LoggerHelper;
     public function __construct()
     {
     }
@@ -79,5 +81,28 @@ class SendController extends Apis
             }
            return $this->response([]);
         }
+    }
+    public function delete(){
+        $rabbitInstance = RabbitmqHelper::getInstance(); 
+        $count = $rabbitInstance->delQueues('sms_push');
+        return $this->response(['count'=>$count]);
+    }
+    public function getMessageNUm(){
+        $rabbitInstance = RabbitmqHelper::getInstance();
+        // $rabbitInstance->pushDelayMsg([],'sms_push',1);
+        $data = $rabbitInstance->getQueues();
+        $num = 0;
+        if(isset($data['sms_push'])) {
+            $num = $data['sms_push']['messages_ready'];
+        }
+        return $this->response(['num'=>$num]);
+    }
+
+    public function getMessageStatus(SendRequest $request){
+      
+    }
+    public function callback(SendRequest $request){
+        $log = $request->input();
+        $this->logger(json_encode($log),'sms');
     }
 }

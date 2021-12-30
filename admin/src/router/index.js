@@ -82,6 +82,16 @@ export const constantRoutes = [
       meta: { title: '发送', icon: 'down' }
     }]
   },
+  {
+    path: '/stop',
+    component: Layout,
+    children: [{
+      path:"Stop",
+      name: 'Stop',
+      component: () => import('@/views/stop/index'),
+      meta: { title: '暂停', icon: 'up' }
+    }]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

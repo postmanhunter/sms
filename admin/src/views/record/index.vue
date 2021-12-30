@@ -6,8 +6,9 @@
             </el-form-item>
             <el-form-item label="状态">
                 <el-select v-model="form.status" placeholder="状态">
-                    <el-option label="成功" value="1"></el-option>
+                    <el-option label="请求成功" value="1"></el-option>
                     <el-option label="失败" value="2"></el-option>
+                    <el-option label="发送成功" value="3"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="时间">
@@ -39,8 +40,9 @@
                 label="状态"
                 width="180">
                 <template slot-scope="scope">
-                    <el-tag v-if="scope.row.status==1" type="success">成功</el-tag>
+                    <el-tag v-if="scope.row.status==1" type="info">请求成功</el-tag>
                     <el-tag v-if="scope.row.status==2" type="danger">失败</el-tag>
+                    <el-tag v-if="scope.row.status==3" type="success">发送成功</el-tag>
                 </template>
             </el-table-column>
             <el-table-column

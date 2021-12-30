@@ -17,7 +17,10 @@ class RecordModel extends Model
         parent::__construct($this);
     }
     public function add($data){
-        $this->insert($data);
+        return $this->insertGetId($data);
+    }
+    public function updateSms($id, $status){
+        $this->where('id',$id)->update(['status'=>$status]);
     }
     public static function getList($request){
         $data = self::where(function($query) use($request){

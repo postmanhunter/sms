@@ -20,6 +20,29 @@ class RabbitmqHelper
         return RabbitmqHelper::$instance;
     }
     /**
+     * 删除指定队列
+     *
+     * @Author  hunter
+     * @DateTime 2021-12-29
+     * @return void
+     */
+    function delQueues($queue_name){
+        $result = $this->channel->queue_delete($queue_name);
+        return $result;
+
+        // $rabbitmqConfig = config('rabbitmq.default');
+        // $rabbitmqHost = $rabbitmqConfig['host'];
+        // $rabbitmqApiport = $rabbitmqConfig['api_port'];
+        // $rabbitmqVhost = $rabbitmqConfig['vhost'];
+        // $rabbitmqUsername = $rabbitmqConfig['username'];
+        // $rabbitmqPassword = $rabbitmqConfig['password'];
+        // $url = "http://{$rabbitmqHost}:{$rabbitmqApiport}/api/queues/%2F/sms_push";
+        // $cmd = "curl -s -u {$rabbitmqUsername}:{$rabbitmqPassword} {$url}";
+        // // dd($cmd);
+        // $ds = json_decode(`$cmd`, true);
+        // return $ds;
+    }
+    /**
      * 获取所有队列的等待消息的消息以及当前队列的消费者个数
      */
     function getQueues()
