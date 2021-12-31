@@ -24,7 +24,7 @@ Route::namespace('App\Http\Controllers\Admin')->group(function(){
     Route::Post('send','SendController@send');//发送短信
     Route::Post('get_temp_list','TempController@getTempList');//获取数据列表
     Route::Post('delete_queue','SendController@delete');//删除队列
-    Route::Post('get_message_num','SendController@getMessageNUm');//获取发送记录
+    
     Route::Post('get_message_status','SendController@getMessageStatus');//获取发送记录
     Route::Post('callback','SendController@callback');//获取发送记录
 });
@@ -45,7 +45,11 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     
     Route::Post('get_web_info','WebController@getInfo');//获取网站数据
     Route::Post('get_record_list','RecordController@getList');//获取发送记录
-    
+    Route::Post('get_base_service','ServiceController@getBaseService');//获取基础短信服务
+    Route::Post('stop_sms_push','SendController@stopSmsPush');//暂停短信发送
+    Route::Post('start_sms_push','SendController@startSmsPush');//获开启短信发送
+    Route::Post('get_message_num','SendController@getMessageNUm');//获取未发送的短信条数
+    Route::Post('clean_sms_push','SendController@cleanSms');//获取未发送的短信条数
 
    
 

@@ -22,6 +22,9 @@ class RecordModel extends Model
     public function updateSms($id, $status){
         $this->where('id',$id)->update(['status'=>$status]);
     }
+    public static function updateRe($sid,$update){
+        self::where('request_id',$sid)->update($update);
+    }
     public static function getList($request){
         $data = self::where(function($query) use($request){
             !empty($request->mobile) && $query->where('mobile',$request->mobile);

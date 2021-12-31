@@ -11,14 +11,19 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use App\Helper\RabbitmqHelper;
 use App\Models\Admin\RecordModel;
 use App\Helper\LoggerHelper;
-
+use App\Helper\RedisHelper;
 class SendController extends Apis
 {
-    use LoggerHelper;
+    use LoggerHelper,RedisHelper;
     public function __construct()
     {
+        $this->redis = $this->getRedisInstance();
     }
     public function send(SendRequest $request){
+        $len = $this->redis->llen('sms_message');
+        if($len){
+            return $this->response(400000,"当前还有{$len}个短信未发送!");
+        }
         $file = $request->file;
         // $file = 'storage/uploads/664bdb3db075d6a89ede207b2c32f3bf.xlsx';
         $public = public_path();
@@ -50,37 +55,19 @@ class SendController extends Apis
         }
        
         $params['temp_id'] = $request->temp_id;
-        $params['service_id'] = $service_params->id;
-        $class = '';
-        switch($request->service_id){
-            //七牛云
-            case 1:
-                $temp = 1; 
-                break;
-            case 3:
-                $temp = 3;
-                break;
-            default;
-                $temp =-1;
-        }
-        if($temp == -1){
-            return $this->response(400000,'当前服务商还未对接');
-        }else{
-            $rabbitInstance = RabbitmqHelper::getInstance(); 
-            $delay = 1;
-            foreach($sheetData as $v_data){
-                $data = [
-                    'message' =>$v_data,
-                    'params' =>$params,
-                ];
+        $params['service_id'] = $service_params->service_id;
 
-                $rabbitInstance->pushDelayMsg($data,'sms_push',$delay);
-                $delay += $request->time;
-                // $Tx = new Tx();
-                // dd($Tx->send($v_data,$params));
-            }
-           return $this->response([]);
+        foreach($sheetData as $v_data){
+            $data = [
+                'message' =>$v_data,
+                'params' =>$params,
+            ];
+            $this->redis->lpush('sms_message',json_encode($data));
         }
+        $this->redis->set('sms_delay_count',$request->time);
+        $this->redis->set('sms_delay',$request->time);
+        return $this->response([]);
+        
     }
     public function delete(){
         $rabbitInstance = RabbitmqHelper::getInstance(); 
@@ -88,21 +75,52 @@ class SendController extends Apis
         return $this->response(['count'=>$count]);
     }
     public function getMessageNUm(){
-        $rabbitInstance = RabbitmqHelper::getInstance();
-        // $rabbitInstance->pushDelayMsg([],'sms_push',1);
-        $data = $rabbitInstance->getQueues();
-        $num = 0;
-        if(isset($data['sms_push'])) {
-            $num = $data['sms_push']['messages_ready'];
-        }
+        $num = $this->redis->llen('sms_message');
         return $this->response(['num'=>$num]);
     }
 
     public function getMessageStatus(SendRequest $request){
-      
+        // $data = [
+        //     'time' => date('Y-m-d H:i:s')
+        // ];
+        // $string = json_encode($data);
+        // // $this->redis->lpush('sms_message',$string);
+        // $this->redis->ltrim('sms_message',0,0);
+       
+        // $this->redis->lpop('sms_message');
+        dd($this->redis->llen('sms_message'));
     }
     public function callback(SendRequest $request){
-        $log = $request->input();
-        $this->logger(json_encode($log),'sms');
+        
+        $data = $request->input();                                                        
+        $update = [];
+        if($data[0]['report_status'] === 'SUCCESS'){
+            $update = [
+                'status' => 3
+            ];
+        } else {
+        
+            $update = [
+                'status' => 2,
+            ];
+        }
+        RecordModel::updateRe($data[0]['sid'],$update);
+    }
+    public function stopSmsPush(){
+        if($this->redis->set('sms_push_status','stop')){
+            return $this->response([]);
+        }
+        return $this->response(400000,'关闭失败');
+    }
+    public function startSmsPush(){
+        if($this->redis->set('sms_push_status','start')){
+            return $this->response([]);
+        }
+        return $this->response(400000,'开启失败');
+    }
+    public function cleanSms(){
+        $this->redis->ltrim('sms_message',0,0);
+        $this->redis->lpop('sms_message');
+        return $this->response([]);
     }
 }

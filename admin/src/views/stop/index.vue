@@ -19,7 +19,7 @@ export default {
         let _this = this;
         let data = setInterval(function(){
             _this.getMessageNum();
-        },2000)
+        },30000)
     },
     methods: {
         async http(url, params = {}) {

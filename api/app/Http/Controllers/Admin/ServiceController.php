@@ -23,4 +23,7 @@ class ServiceController extends Apis{
         }
         return $this->response(400000,'操作失败');
     }
+    public function getBaseService(){
+        return $this->response(ServiceModel::getBaseService());
+    }
 }

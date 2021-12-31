@@ -8,6 +8,11 @@
         width="180">
       </el-table-column>
       <el-table-column
+        prop="base_service_name"
+        label="所属服务商"
+        width="180">
+      </el-table-column>
+      <el-table-column
         prop="created_at"
         label="添加时间"
         width="180">
@@ -26,6 +31,11 @@
     width="30%"
     :before-close="handleClose">
       <el-form ref="form" :model="form" label-width="80px">
+        <el-form-item label="活动名称">
+          <el-select v-model="form.service_id">
+            <el-option v-for="(item,index) in baseService" :key="index" :value="index" :label="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="活动名称">
           <el-input v-model="form.service_name"></el-input>
         </el-form-item>
@@ -84,13 +94,16 @@ export default {
         form:{
           id:'',
           service_name:'',
-          params:[]
+          params:[],
+          service_id:''
         },
         tableData:[],
+        baseService:[]
     };
   },
   mounted() {
     this.getList();
+    this.getBaseService();
   },
   methods: {
     async http(url, params = {}) {
@@ -100,6 +113,11 @@ export default {
         params: params,
       });
       return data;
+    },
+    async getBaseService(){
+      let data = await this.http('/api/get_base_service');
+      this.baseService = data.data
+
     },
      addOne(){
             this.form.params.push({title:'',value:''})
@@ -142,7 +160,11 @@ export default {
         this.$message.info('请输入服务商名称');
         return false;
       }
-      let data = await this.http('/api/add_service',{service_name:this.form.service_name});
+      if(this.form.service_id==''){
+        this.$message.info('请选择服务商');
+        return false;
+      }
+      let data = await this.http('/api/add_service',{service_name:this.form.service_name,service_id:this.form.service_id});
       if(data.code=='200000'){
         this.$message.success('添加成功');
         this.getList();

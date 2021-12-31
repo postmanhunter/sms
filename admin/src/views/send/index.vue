@@ -1,5 +1,11 @@
 <template>
     <div class="container">
+        <div >当前还有<el-tag>{{num}}</el-tag>短信未发送</div><el-tag type="success" v-if="num >0" @click="clean">清空未发送的短信</el-tag>
+        <div class="stop">
+            <el-button @click="stop" v-if="sms_push_status=='start'">暂停</el-button>
+            <el-button @click="start" v-if="sms_push_status=='stop'">开启</el-button>
+        </div>
+        <el-divider/>
         <el-form ref="form" :model="form" label-width="110px">
             <el-form-item label="服务商">
                 <el-select v-model="form.service_id" @change="getTempData" placeholder="请选择">
@@ -51,12 +57,19 @@ export default {
             service:[],
             fileList:[],
             upload_url:'',
-            multiple:false
+            multiple:false,
+            num:0,
+            tx_callback:'',
+            sms_push_status:''
         };
     },
     mounted() {
         this.getServiceList();
         this.getWeb();
+        let _this = this;
+        let data = setInterval(function(){
+            _this.getMessageNum();
+        },5000)
     },
     methods: {
         async http(url, params = {}) {
@@ -67,6 +80,19 @@ export default {
         });
         return data;
         },
+        async getMessageNum(){
+            let data = await this.http('/api/get_message_num');
+            if(data.code==200000){
+                this.num = data.data.num;
+            }
+        },
+        async getWeb(){
+            let data = await this.http('/api/get_web_info');
+            this.tx_callback = data.data.tx_callback_url;
+            this.sms_push_status = data.data.sms_push_status;
+            this.upload_url = data.data.upload_url
+            this.num = data.data.num
+        },
         async getServiceList(){
             let data = await this.http('/api/get_service_list');
             this.service = data.data; 
@@ -76,10 +102,6 @@ export default {
             this.form.temp_id = '';
             let data = await this.http('/api/get_temp_list',{service_id:val});
             this.temp = data.data;
-        },
-        async getWeb(){
-            let data = await this.http('/api/get_web_info');
-            this.upload_url = data.data.upload_url;
         },
         async submit(){
             if(this.form.service_id==''){
@@ -125,7 +147,7 @@ export default {
         beforeRemove(file, fileList) {
             return this.$confirm(`确定移除 ${ file.name }？`);
         },
-         delete() {
+        delete() {
             //删除原来的图片
             document.getElementsByClassName(
             "el-upload-list"
@@ -140,6 +162,33 @@ export default {
             }else{
                 this.form.file =data.data.url
             }
+        },
+        async start(){
+            let data = await this.http('/api/start_sms_push');
+            if(data.code==200000) {
+                this.$message.success('短信发送开启成功');
+                this.sms_push_status = 'start';
+            }else{
+                this.$message.error('短信发送开启失败');
+            }
+        },
+        async stop(){
+             let data = await this.http('/api/stop_sms_push');
+            if(data.code==200000) {
+                this.$message.success('短信发送关闭成功');
+                this.sms_push_status = 'stop';
+            }else{
+                this.$message.error('短信发送关闭失败');
+            }
+        },
+        async clean(){
+            let data = await this.http('/api/clean_sms_push');
+            if(data.code==200000) {
+                this.$message.success('清除成功');
+                this.num = 0;
+            }else{
+                this.$message.error('清除失败');
+            }
         }
     }
 };
@@ -147,5 +196,8 @@ export default {
 <style>
 .container {
   margin: 20px 30px;
+}
+.stop{
+    margin-top:20px;
 }
 </style>

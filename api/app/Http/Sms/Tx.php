@@ -56,7 +56,7 @@ class Tx{
             $paramters = [];
             $index = 1;
             foreach($params['temp_params'] as $v){
-                $paramters[] = (string)$message[$index++];
+                $paramters[] =  (string)$message[$index++];
             }
             $req->TemplateParamSet = $paramters;
         
@@ -66,17 +66,18 @@ class Tx{
             $resp = $client->SendSms($req);
             // 输出json格式的字符串回包
             $data =  json_decode($resp->toJsonString(),true);
+
             if($data['SendStatusSet'][0]['Code']==='Ok'){
                 return [[
                     'status' => 1,
                     'message' => '',
-                    'RequestId' => $data['RequestId']
+                    'RequestId' => $data['SendStatusSet'][0]['SerialNo']
                 ],1];
             }else{
                 return [[
                     'status' => 2,
                     'message' => $data['SendStatusSet'][0]['Message'],
-                    'RequestId' => $data['RequestId']
+                    'RequestId' => $data['SendStatusSet'][0]['SerialNo']
                 ],1];
             }
         }
