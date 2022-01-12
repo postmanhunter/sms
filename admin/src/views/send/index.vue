@@ -202,5 +202,6 @@ export default {
 }
 .clear:hover{
     cursor: pointer;
+    
 }
 </style>
