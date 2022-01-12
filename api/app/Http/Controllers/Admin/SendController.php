@@ -26,7 +26,7 @@ class SendController extends Apis
             return $this->response(400000,"当前还有{$len}个短信未发送!");
         }
         $file = $request->file;
-        $file = 'storage/uploads/0c58e88eef112084944f3d6f62a20bb9.xlsx';
+        // $file = 'storage/uploads/0c58e88eef112084944f3d6f62a20bb9.xlsx';
         $public = public_path();
         $path = $public.'/'.$file;
         $reader = new Xlsx();
