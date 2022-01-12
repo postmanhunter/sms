@@ -74,14 +74,15 @@ class SendController extends Apis
                     throw new \Exception('检测空号接口异常');
                 }
                 $mobile_status = $emptyMessage['data']['status'];
-                if(in_array( $mobile_status,[0,3])){
+                
+                if($mobile_status != 1){
                     //检测到空号
                     (new RecordModel)->add([
                         'mobile' => $v_data[0],
                         'temp_id' => $params['temp_id'],
                         'status' => 2,
                         'created_at' => date('Y-m-d H:i:s'),
-                        'reason' => 'empty mobile number',
+                        'reason' => "empty mobile number,status is {$mobile_status}",
                         'service_id' => $params['service_id']
                     ]);
                     continue;
