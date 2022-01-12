@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div >当前还有<el-tag>{{num}}</el-tag>短信未发送</div><el-tag type="success" v-if="num >0" @click="clean">清空未发送的短信</el-tag>
+        <div >当前还有<el-tag>{{num}}</el-tag>短信未发送</div><el-tag type="success" v-if="num >0" @click="clean" class='clear'>清空未发送的短信</el-tag>
         <div class="stop">
             <el-button @click="stop" v-if="sms_push_status=='start'">暂停</el-button>
             <el-button @click="start" v-if="sms_push_status=='stop'">开启</el-button>
@@ -199,5 +199,8 @@ export default {
 }
 .stop{
     margin-top:20px;
+}
+.clear:hover{
+    cursor: pointer;
 }
 </style>

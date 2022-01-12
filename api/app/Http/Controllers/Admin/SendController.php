@@ -5,6 +5,7 @@ use App\Http\Controllers\Apis;
 use App\Http\Requests\Admin\SendRequest;
 use App\Http\Sms\Qiniu;
 use App\Http\Sms\Tx;
+use App\Http\Sms\EmptyCheck;
 use App\Models\Admin\ServiceModel;
 use App\Models\Admin\TempModel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -25,7 +26,7 @@ class SendController extends Apis
             return $this->response(400000,"当前还有{$len}个短信未发送!");
         }
         $file = $request->file;
-        // $file = 'storage/uploads/664bdb3db075d6a89ede207b2c32f3bf.xlsx';
+        $file = 'storage/uploads/0c58e88eef112084944f3d6f62a20bb9.xlsx';
         $public = public_path();
         $path = $public.'/'.$file;
         $reader = new Xlsx();
@@ -56,12 +57,36 @@ class SendController extends Apis
        
         $params['temp_id'] = $request->temp_id;
         $params['service_id'] = $service_params->service_id;
-
+        $check_params = [
+            'secretId' => $this->redis->get('secretId'),
+            'secretKey' => $this->redis->get('secretKey')
+        ];
         foreach($sheetData as $v_data){
             $data = [
                 'message' =>$v_data,
                 'params' =>$params,
             ];
+
+            //如果开启短信空号检测则检测
+            if($this->redis->get('check_status')==='start'){
+                $emptyMessage = EmptyCheck::check($v_data[0],$check_params);
+                if(!isset($emptyMessage['data']['status'])){
+                    throw new \Exception('检测空号接口异常');
+                }
+                $mobile_status = $emptyMessage['data']['status'];
+                if(in_array( $mobile_status,[0,3])){
+                    //检测到空号
+                    (new RecordModel)->add([
+                        'mobile' => $v_data[0],
+                        'temp_id' => $params['temp_id'],
+                        'status' => 2,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'reason' => 'empty mobile number',
+                        'service_id' => $params['service_id']
+                    ]);
+                    continue;
+                }
+            }
             $this->redis->lpush('sms_message',json_encode($data));
         }
         $this->redis->set('sms_delay_count',$request->time);

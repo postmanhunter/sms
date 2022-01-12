@@ -48,6 +48,10 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     Route::Post('get_base_service','ServiceController@getBaseService');//获取基础短信服务
     Route::Post('stop_sms_push','SendController@stopSmsPush');//暂停短信发送
     Route::Post('start_sms_push','SendController@startSmsPush');//获开启短信发送
+    Route::Post('stop_check_num','EmptynumController@stopCheckNum');//暂停短信检测
+    Route::Post('start_check_num','EmptynumController@startCheckNum');//开启短信检测
+    Route::Post('get_num_service','EmptynumController@getNumService');//开启短信检测
+    Route::Post('submit_num_service','EmptynumController@submit');//开启短信检测
     Route::Post('get_message_num','SendController@getMessageNUm');//获取未发送的短信条数
     Route::Post('clean_sms_push','SendController@cleanSms');//获取未发送的短信条数
 

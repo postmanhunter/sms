@@ -53,6 +53,16 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/emptynum',
+    component: Layout,
+    children: [{
+      path:"Emptynum",
+      name: 'Emptynum',
+      component: () => import('@/views/checknum/index'),
+      meta: { title: '空号检测服务商', icon: 'eye' }
+    }]
+  },
+  {
     path: '/template',
     component: Layout,
     children: [{
