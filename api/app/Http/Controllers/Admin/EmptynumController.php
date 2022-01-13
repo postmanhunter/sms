@@ -54,7 +54,7 @@ class EmptynumController extends Apis
         if($this->redis->exists('remain_empty_num')){
             $num = $this->redis->get('remain_empty_num');
             return $this->response([
-                'remain' =>"剩余次数，总次数<span style='color:red'></span>{$num}"
+                'remain' =>"剩余次数/总次数:{$num}"
             ]);
         }
         return $this->response(['remain'=>'还未查询次数']);
@@ -69,6 +69,6 @@ class EmptynumController extends Apis
             throw new \Exception('手动刷新异常');
         } 
         $this->redis->set('remain_empty_num',$result['num']);
-        return $this->response(['remain'=>$result['num']]);
+        return $this->response(['remain'=>'剩余次数/总次数:'.$result['num']]);
     }
 }

@@ -21,10 +21,6 @@ class SendController extends Apis
         $this->redis = $this->getRedisInstance();
     }
     public function send(SendRequest $request){
-        $len = $this->redis->llen('sms_message');
-        if($len){
-            return $this->response(400000,"当前还有{$len}个短信未发送!");
-        }
         $file = $request->file;
         // $file = 'storage/uploads/0c58e88eef112084944f3d6f62a20bb9.xlsx';
         $public = public_path();
@@ -70,17 +66,14 @@ class SendController extends Apis
             //如果开启短信空号检测则检测
             if($this->redis->get('check_status')==='start'){
                 $result = EmptyCheck::check($v_data[0],$check_params);
-                if(!isset($result['data']) || !isset($result['num'])){
-                    throw new \Exception('检测空号接口异常');
-                } 
-                $emptyMessage = $result['data'];
-                if(!isset($emptyMessage['data']['status'])){
-                    throw new \Exception('检测空号接口异常');
-                } 
                 
-                $this->redis->set('remain_empty_num',$result['num']);
-                $mobile_status = $emptyMessage['data']['status'];
-                
+                if(!isset($result['data']) || !isset($result['num']) || !isset($result['data']['data']['status'])){
+                    $mobile_status = 1;
+                }else {
+                    $emptyMessage = $result['data']; 
+                    $this->redis->set('remain_empty_num',$result['num']);
+                    $mobile_status = $emptyMessage['data']['status'];
+                }
                 if($mobile_status != 1){
                     //检测到空号
                     (new RecordModel)->add([
