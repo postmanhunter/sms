@@ -69,7 +69,7 @@ export default {
         let _this = this;
         let data = setInterval(function(){
             _this.getMessageNum();
-        },5000)
+        },20000)
     },
     methods: {
         async http(url, params = {}) {
@@ -202,6 +202,6 @@ export default {
 }
 .clear:hover{
     cursor: pointer;
-    
+
 }
 </style>

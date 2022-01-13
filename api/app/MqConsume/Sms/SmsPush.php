@@ -21,8 +21,6 @@ class SmsPush{
         $recordModel = new RecordModel();
         $redis = $this->getRedisInstance();
         RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel){
-            
-            var_dump($data);
             $service_id = $data['params']['service_id'];
             // echo $service_id;
                 list($result,$error) = $class[$service_id]->send($data['message'],$data['params']);

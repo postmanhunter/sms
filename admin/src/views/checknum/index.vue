@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+        <div>空号检测次数使用情况:{{num}}               <el-button @click="handle">手动刷新</el-button></div>
         <el-button @click="stop" v-if="check_status=='start'">暂停</el-button>
         <el-button @click="start" v-if="check_status=='stop'">开启</el-button>
         <el-divider></el-divider>
@@ -26,12 +27,14 @@ export default {
             form:{
                 secretId:'',
                 secretKey:''
-            }
+            },
+            num:''
         };
     },
     mounted() {
         this.getWeb();
         this.getData();
+        this.getNum();
     },
     methods: {
         async http(url, params = {}) {
@@ -41,6 +44,19 @@ export default {
             params: params,
         });
         return data;
+        },
+        async getNum(){
+            let data = await this.http('/api/get_remain_num')
+            this.num = data.data.remain;
+        },
+        async handle(){
+            let data = await this.http('/api/handle_deal');
+            if(data.code==200000){
+                this.$message.success(data.message);
+                this.num = data.data.remain
+            }else{
+                this.$message.error(data.message);
+            }
         },
         async getWeb(){
             let data = await this.http('/api/get_web_info');

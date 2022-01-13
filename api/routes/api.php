@@ -27,6 +27,7 @@ Route::namespace('App\Http\Controllers\Admin')->group(function(){
     
     Route::Post('get_message_status','SendController@getMessageStatus');//获取发送记录
     Route::Post('callback','SendController@callback');//获取发送记录
+    Route::Post('remain_num','EmptynumController@remainNum');//获取发送记录
 });
 
 //主后台模块
@@ -54,7 +55,6 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     Route::Post('submit_num_service','EmptynumController@submit');//开启短信检测
     Route::Post('get_message_num','SendController@getMessageNUm');//获取未发送的短信条数
     Route::Post('clean_sms_push','SendController@cleanSms');//获取未发送的短信条数
-
-   
-
+    Route::Post('get_remain_num','EmptynumController@getRemainnum');//获取接口检测次数
+    Route::Post('handle_deal','EmptynumController@handle');//获取接口检测次数
 });

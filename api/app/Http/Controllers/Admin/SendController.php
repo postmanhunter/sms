@@ -69,10 +69,16 @@ class SendController extends Apis
 
             //如果开启短信空号检测则检测
             if($this->redis->get('check_status')==='start'){
-                $emptyMessage = EmptyCheck::check($v_data[0],$check_params);
+                $result = EmptyCheck::check($v_data[0],$check_params);
+                if(!isset($result['data']) || !isset($result['num'])){
+                    throw new \Exception('检测空号接口异常');
+                } 
+                $emptyMessage = $result['data'];
                 if(!isset($emptyMessage['data']['status'])){
                     throw new \Exception('检测空号接口异常');
-                }
+                } 
+                
+                $this->redis->set('remain_empty_num',$result['num']);
                 $mobile_status = $emptyMessage['data']['status'];
                 
                 if($mobile_status != 1){

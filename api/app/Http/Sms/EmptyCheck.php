@@ -49,21 +49,32 @@ class EmptyCheck
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+      
         curl_setopt($ch, CURLOPT_HTTPHEADER, array_map(function ($v, $k) {
             return $k . ': ' . $v;
         }, array_values($headers), array_keys($headers)));
         if (in_array($method, array('POST', 'PUT', 'PATCH'), true)) {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($bodyParams));
         }
-
+        curl_setopt($ch, CURLOPT_HEADER,true);
         $data = curl_exec($ch); 
-        
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        // 根据头大小去获取头信息内容
+        $header = substr($data, 0, $headerSize);
+        $pos = strpos($header,'X-UsagePlan-Quota:');
+        $date_pos = strpos($header,'Date:');
+        // dd($pos,$date_pos);
+        $header_array = explode('\r\n',$header);
+        $mess = substr($data,$headerSize);
         if (curl_errno($ch)) {
             throw new \Exception('检测空号异常');
             curl_close($ch);
         } else {
             curl_close($ch);
-            return json_decode($data,true);
+            return [
+                'data' => json_decode($mess,true),
+                'num' => trim(substr($header,$pos+18,$date_pos-$pos-18))
+            ];
         }
     }
 }

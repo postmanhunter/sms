@@ -27,6 +27,28 @@ class PushMessage
             }else {
                 $this->logger("no message",'push_message');
             }
+
+            $data = $this->redis->rpop('sms_message');
+            if($data){
+                $delay_count = $this->redis->get('sms_delay_count');
+                $delay = $this->redis->get('sms_delay');
+                $this->logger("{$delay_count}---{$delay}",'push_message');
+                $rabbitmq->pushDelayMsg(json_decode($data,true),'sms_push',$delay_count);
+                $this->redis->set('sms_delay_count',$delay_count+$delay);
+            }else {
+                $this->logger("no message",'push_message');
+            }
+            
+            $data = $this->redis->rpop('sms_message');
+            if($data){
+                $delay_count = $this->redis->get('sms_delay_count');
+                $delay = $this->redis->get('sms_delay');
+                $this->logger("{$delay_count}---{$delay}",'push_message');
+                $rabbitmq->pushDelayMsg(json_decode($data,true),'sms_push',$delay_count);
+                $this->redis->set('sms_delay_count',$delay_count+$delay);
+            }else {
+                $this->logger("no message",'push_message');
+            }
         }else{
             $this->logger("push stop",'push_message');
         }
