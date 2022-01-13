@@ -5,7 +5,7 @@ use App\Http\Controllers\Apis;
 use App\Http\Requests\Admin\SendRequest;
 use App\Http\Sms\Qiniu;
 use App\Http\Sms\Tx;
-use App\Http\Sms\EmptyCheck;
+
 use App\Models\Admin\ServiceModel;
 use App\Models\Admin\TempModel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
@@ -53,40 +53,11 @@ class SendController extends Apis
        
         $params['temp_id'] = $request->temp_id;
         $params['service_id'] = $service_params->service_id;
-        $check_params = [
-            'secretId' => $this->redis->get('secretId'),
-            'secretKey' => $this->redis->get('secretKey')
-        ];
         foreach($sheetData as $v_data){
             $data = [
                 'message' =>$v_data,
                 'params' =>$params,
             ];
-
-            //如果开启短信空号检测则检测
-            if($this->redis->get('check_status')==='start'){
-                $result = EmptyCheck::check($v_data[0],$check_params);
-                
-                if(!isset($result['data']) || !isset($result['num']) || !isset($result['data']['data']['status'])){
-                    $mobile_status = 1;
-                }else {
-                    $emptyMessage = $result['data']; 
-                    $this->redis->set('remain_empty_num',$result['num']);
-                    $mobile_status = $emptyMessage['data']['status'];
-                }
-                if($mobile_status != 1){
-                    //检测到空号
-                    (new RecordModel)->add([
-                        'mobile' => $v_data[0],
-                        'temp_id' => $params['temp_id'],
-                        'status' => 2,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'reason' => "empty mobile number,status is {$mobile_status}",
-                        'service_id' => $params['service_id']
-                    ]);
-                    continue;
-                }
-            }
             $this->redis->lpush('sms_message',json_encode($data));
         }
         $this->redis->set('sms_delay_count',$request->time);
