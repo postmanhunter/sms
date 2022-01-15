@@ -11,7 +11,7 @@ use App\Models\Admin\RecordModel;
 use App\Models\Admin\SendModel;
 use App\Helper\LoggerHelper;
 use App\Helper\RedisHelper;
-
+use App\Helper\ClientIpHelper;
 class SendController extends Apis
 {
     use LoggerHelper,RedisHelper;
@@ -168,9 +168,7 @@ class SendController extends Apis
         return $this->response($data);
     }
     public function test(){
-        $this->redis->sAdd('sms_send_member',1);
-        $this->redis->sAdd('sms_send_member',2);
-        $this->redis->sAdd('sms_send_member',3);
-        dd($this->redis->sMembers('sms_send_member'));
+        $ip = ClientIpHelper::getRemoteIP();
+        $this->logger("ip:{$ip}",'ip');
     }
 }
