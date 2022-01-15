@@ -58,5 +58,5 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     Route::Post('clean_sms_push','SendController@cleanSms');//获取未发送的短信条数
     Route::Post('get_remain_num','EmptynumController@getRemainnum');//获取接口检测次数
     Route::Post('handle_deal','EmptynumController@handle');//手动检测次数
-    Route::Post('send_list','sendController@getList');//手动检测次数
+    Route::Post('send_list','SendController@getList');//手动检测次数
 });
