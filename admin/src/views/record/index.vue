@@ -25,7 +25,7 @@
                 <el-button type="primary" @click="getData">查询</el-button>
             </el-form-item>
         </el-form>
-        <el-table :data="tableData">
+        <el-table :data="tableData" v-loading="loading">
             <el-table-column
                 prop="id"
                 label="ID"
@@ -98,7 +98,8 @@ export default {
                 page:1,
                 count:0,
                 limit:20
-            }
+            },
+            loading:false
         };
     },
     mounted() {
@@ -114,11 +115,12 @@ export default {
             return data;
         },
         async getData(){
+            this.loading = true;
             let {data} = await this.http('/api/get_record_list',this.form);
             console.log(data)
             this.tableData = data.data;
             this.form.count = data.total;
-            
+            this.loading = false;
         },
         handleSizeChange(val){
             this.form.limit = val;

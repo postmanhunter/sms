@@ -89,7 +89,7 @@ export const constantRoutes = [
       path:"Send",
       name: 'Send',
       component: () => import('@/views/send/index'),
-      meta: { title: '发送', icon: 'down' }
+      meta: { title: '发送列表', icon: 'down' }
     }]
   },
   // 404 page must be placed at the end !!!

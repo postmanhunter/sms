@@ -3,16 +3,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Apis;
 use App\Http\Requests\Admin\SendRequest;
-use App\Http\Sms\Qiniu;
-use App\Http\Sms\Tx;
-
 use App\Models\Admin\ServiceModel;
 use App\Models\Admin\TempModel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use App\Helper\RabbitmqHelper;
 use App\Models\Admin\RecordModel;
+use App\Models\Admin\SendModel;
 use App\Helper\LoggerHelper;
 use App\Helper\RedisHelper;
+
 class SendController extends Apis
 {
     use LoggerHelper,RedisHelper;
@@ -30,8 +29,6 @@ class SendController extends Apis
     
         //需要发送的人的信息
         $sheetData = $spreadsheet->getActiveSheet()->ToArray();
-        // dd($sheetData);
-        $temp = 1;
         $service_params = ServiceModel::getService($request->service_id);
         $param = json_decode($service_params->params,true);
        
@@ -53,15 +50,31 @@ class SendController extends Apis
        
         $params['temp_id'] = $request->temp_id;
         $params['service_id'] = $service_params->service_id;
+        $count = count($sheetData);
+        $insert = [
+            'service' => $request->service_id,
+            'temp_id' => $request->temp_id,
+            'time_gap' => $request->time,
+            'nums' => $request->nums,
+            'total' => $count,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+        $send_id = SendModel::add($insert);
+        $params['send_id'] = $send_id;
         foreach($sheetData as $v_data){
             $data = [
                 'message' =>$v_data,
                 'params' =>$params,
             ];
-            $this->redis->lpush('sms_message',json_encode($data));
+            $this->redis->lpush('sms_message_'.$send_id,json_encode($data));
         }
-        $this->redis->set('sms_delay_count',$request->time);
-        $this->redis->set('sms_delay',$request->time);
+        
+        $this->redis->set('sms_cur_send_'.$send_id,time());
+        $this->redis->set('sms_delay_'.$send_id,$request->time);
+        $this->redis->set('every_nums_'.$send_id,$request->nums);
+        //添加发送模板成员
+        !$this->redis->sIsMember('sms_send_member',$send_id) && $this->redis->sAdd('sms_send_member',$send_id);
+
         return $this->response([]);
         
     }
@@ -102,14 +115,14 @@ class SendController extends Apis
         }
         RecordModel::updateRe($data[0]['sid'],$update);
     }
-    public function stopSmsPush(){
-        if($this->redis->set('sms_push_status','stop')){
+    public function stopSmsPush(SendRequest $request){
+        if($this->redis->set('sms_push_status_'.$request->id,'stop')){
             return $this->response([]);
         }
         return $this->response(400000,'关闭失败');
     }
-    public function startSmsPush(){
-        if($this->redis->set('sms_push_status','start')){
+    public function startSmsPush(SendRequest $request){
+        if($this->redis->set('sms_push_status_'.$request->id,'start')){
             return $this->response([]);
         }
         return $this->response(400000,'开启失败');
@@ -118,5 +131,46 @@ class SendController extends Apis
         $this->redis->ltrim('sms_message',0,0);
         $this->redis->lpop('sms_message');
         return $this->response([]);
+    }
+    public function getList(SendRequest $request){
+        $service = ServiceModel::getList()->toArray();
+        $data = SendModel::getList($request);
+        $data1 = [];
+        foreach($service as $val){
+            $data1[$val['id']] = $val['service_name'];
+        }
+        $status = [
+            1 => '就绪中',
+            2 => '发送中',
+            3 => '暂停',
+            4 => '已完成',
+        ];
+        $members = $this->redis->sMembers('sms_send_member');
+        // var_dump($data);die;
+        foreach($data['data'] as &$val){
+            $send_status = $this->redis->get('sms_push_status_'.$val['id']);
+            $val['service_name'] = $data1[$val['service']];
+            $val['status_name'] = $status[$val['status']];
+            $val['condition'] = $val['finish'].'/'.$val['total'];
+            $val['send_status'] = $send_status === 'start'?'start':'stop';
+            if (!empty($members)) {
+                if(in_array($val['id'],$members)) {
+                    $val['click_status'] ='open';
+                    $val['status_n'] = '1';
+                }else {
+                    $val['status_n'] = '2';
+                }
+            } else {
+                $val['click_status'] = 'close';
+                $val['status_n'] = '2';
+            }
+        }
+        return $this->response($data);
+    }
+    public function test(){
+        $this->redis->sAdd('sms_send_member',1);
+        $this->redis->sAdd('sms_send_member',2);
+        $this->redis->sAdd('sms_send_member',3);
+        dd($this->redis->sMembers('sms_send_member'));
     }
 }

@@ -26,8 +26,9 @@ Route::namespace('App\Http\Controllers\Admin')->group(function(){
     Route::Post('delete_queue','SendController@delete');//删除队列
     
     Route::Post('get_message_status','SendController@getMessageStatus');//获取发送记录
-    Route::Post('callback','SendController@callback');//获取发送记录
-    Route::Post('remain_num','EmptynumController@remainNum');//获取发送记录
+    Route::Post('callback','SendController@callback');//腾讯短信回调地址
+    Route::Post('remain_num','EmptynumController@remainNum');//获取空号检测个数
+    Route::Post('test','SendController@test');//获取空号检测个数
 });
 
 //主后台模块
@@ -56,5 +57,6 @@ Route::namespace('App\Http\Controllers\Admin')->middleware(AuthUser::class)->gro
     Route::Post('get_message_num','SendController@getMessageNUm');//获取未发送的短信条数
     Route::Post('clean_sms_push','SendController@cleanSms');//获取未发送的短信条数
     Route::Post('get_remain_num','EmptynumController@getRemainnum');//获取接口检测次数
-    Route::Post('handle_deal','EmptynumController@handle');//获取接口检测次数
+    Route::Post('handle_deal','EmptynumController@handle');//手动检测次数
+    Route::Post('send_list','sendController@getList');//手动检测次数
 });

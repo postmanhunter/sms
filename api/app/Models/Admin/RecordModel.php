@@ -38,6 +38,7 @@ class RecordModel extends Model
             $data1[$val['id']] = $val['service_name'];
         }
         // var_dump($data);die;
+   
         foreach($data['data'] as &$val){
             $val['service_name'] = $data1[$val['service_id']];
         }

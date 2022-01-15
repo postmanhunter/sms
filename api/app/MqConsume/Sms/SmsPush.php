@@ -4,6 +4,7 @@ use App\Helper\RabbitmqHelper;
 use App\Http\Sms\Qiniu;
 use App\Http\Sms\Tx;
 use App\Models\Admin\RecordModel;
+use App\Models\Admin\SendModel;
 use App\Helper\RedisHelper;
 use App\Http\Sms\EmptyCheck;
 class SmsPush{
@@ -19,14 +20,15 @@ class SmsPush{
             3 => $class_tx
         ];
         $recordModel = new RecordModel();
+        $sendModel = new SendModel();
         $redis = $this->getRedisInstance();
-        RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel,$redis){
+        RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel,$sendModel,$redis){
+            $sendModel->addOne($data['params']['send_id']);
             // var_dump($data);
             $check_params = [
                 'secretId' => $redis->get('secretId'),
                 'secretKey' => $redis->get('secretKey')
             ];
-
             //如果开启短信空号检测则检测
             if($redis->get('check_status')==='start'){
                 $result1 = EmptyCheck::check($data['message'][0],$check_params);

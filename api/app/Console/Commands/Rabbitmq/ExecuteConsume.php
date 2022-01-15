@@ -28,9 +28,9 @@ class ExecuteConsume extends Command
             
                 $obj = new $class();
                 if ($obj->$action()) {
-                    $this->info("{$file}执行成功");
+                    $this->info("{$full_path}执行成功");
                 } else {
-                    $this->info("{$file}执行失败" . $obj->getLastErrorMsg());
+                    $this->info("{$class_name}执行失败");
                 }
                 
                 $this->info("全部执行完毕");
