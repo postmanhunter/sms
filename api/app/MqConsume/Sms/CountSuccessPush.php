@@ -5,7 +5,7 @@ use App\Models\Admin\SendModel;
 
 class CountSuccessPush
 {
-    # php /www/wwwroot/sms/api/artisan ExecuteConsume --path=Sms --action=up --class=QuerySmsStatus
+    # php /www/wwwroot/sms/api/artisan ExecuteConsume --path=Sms --action=up --class=CountSuccessPush
     # php /usr/share/nginx/html/www/test/laravel8/artisan ExecuteConsume --path=Sms --action=up --class=QuerySmsStatus
     public function up()
     {

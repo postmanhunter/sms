@@ -45,7 +45,7 @@ class PushMessage
                                 $this->redis->sRem('sms_send_member',$temp_id);
 
                                 //并且统计发送成功的有多少条
-                                $rabbitmq->pushDelayMsg($temp_id,'count_success_push',1);
+                                $rabbitmq->pushDelayMsg($temp_id,'count_success_push',40);
                                 $this->logger("{$temp_id} no message,rm redis queue", 'push_message');
                                 // break;
                             }
