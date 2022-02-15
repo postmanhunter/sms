@@ -34,7 +34,7 @@ class QuerySmsStatus
                     echo $delay.date('Y-m-d H:i:s').PHP_EOL;
                     $delay += 30;
                     RabbitmqHelper::getInstance()->pushDelayMsg($data,'query_sms_status',$delay);
-                    $redis->set('qiniu_check_delay_'.$data['message_id'],30);
+                    $redis->set('qiniu_check_delay_'.$data['message_id'],$delay);
                     $redis->expire('qiniu_check_delay_'.$data['message_id'],400);
                 } else {
                     $recordModel->updateSms($data['message_id'],2);
