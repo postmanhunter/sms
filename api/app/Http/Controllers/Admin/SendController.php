@@ -107,6 +107,7 @@ class SendController extends Apis
             $update = [
                 'status' => 3
             ];
+
         } else {
         
             $update = [
@@ -148,10 +149,15 @@ class SendController extends Apis
         $members = $this->redis->sMembers('sms_send_member');
         // var_dump($data);die;
         foreach($data['data'] as &$val){
+            if(!is_null($val['success'])){
+                $val['rate'] = (ceil($val['success']/$val['total']*10000)/100).'%';
+            } else {
+                $val['rate'] = '暂未统计';
+            }
             $send_status = $this->redis->get('sms_push_status_'.$val['id']);
             $val['service_name'] = $data1[$val['service']];
             $val['status_name'] = $status[$val['status']];
-            $val['condition'] = $val['finish'].'/'.$val['total'];
+            $val['condition'] = $val['finish'].'/'.$val['total'].'/'.$val['rate'];
             $val['send_status'] = $send_status === 'start'?'start':'stop';
             if (!empty($members)) {
                 if(in_array($val['id'],$members)) {

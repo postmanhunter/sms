@@ -34,7 +34,7 @@
                     <el-tag  v-if="scope.row.status_n=='2'" type="success">已完成</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column prop="condition" label="发送情况:已完成/总数"></el-table-column>
+            <el-table-column prop="condition" label="发送情况:已完成/总数/成功率"></el-table-column>
             <el-table-column prop="created_at" label="创建时间"></el-table-column>
             <el-table-column label="发送状态">  
                 <template slot-scope="scope">

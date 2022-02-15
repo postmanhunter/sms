@@ -10,6 +10,7 @@ use App\Http\Sms\EmptyCheck;
 class SmsPush{
     use RedisHelper;
     # php /usr/share/nginx/html/www/test/laravel8/artisan ExecuteConsume --path=Sms --action=up --class=SmsPush
+    # php /www/wwwroot/sms/api/artisan ExecuteConsume --path=Sms --action=up --class=SmsPush
     public function up(){
         $queue_name = 'sms_push';
         
@@ -83,6 +84,7 @@ class SmsPush{
                     $insert['status'] = $result['status'];
                     break;
             }
+            $insert['send_id'] = $data['params']['send_id'];
             $id = $recordModel->add($insert);
 
                 //请求成功在发送查单(七牛云查单，腾讯回调)

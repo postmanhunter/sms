@@ -44,4 +44,7 @@ class RecordModel extends Model
         }
         return $data;
     }
+    public static function countNum($send_id) {
+        return self::where('send_id',$send_id)->where('status',3)->count();
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Models\Admin;
 
 use App\Models\Model;
+use App\Models\Admin\RecordModel;
 
 class SendModel extends Model
 {
@@ -21,7 +22,6 @@ class SendModel extends Model
             !empty($request->time[0]) && $query->where('created_at','>=',date('Y-m-d H:i:s',strtotime($request->time[0])));
             !empty($request->time[1]) && $query->where('created_at','<=',date('Y-m-d H:i:s',strtotime($request->time[1])));
         })->orderBy('id','desc')->paginate($request->limit)->toArray(); 
-        
         return $data;
     } 
     public static function add($insert){
@@ -29,5 +29,11 @@ class SendModel extends Model
     }
     public function addOne($id){
         self::where('id',$id)->increment('finish');
+    }
+    public function countNum($send_id){
+        if($send_id) {
+            $count = RecordModel::countNum($send_id);
+            self::where('id',$send_id)->update(['success'=>$count]);
+        }
     }
 }
