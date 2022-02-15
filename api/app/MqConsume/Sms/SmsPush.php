@@ -90,7 +90,9 @@ class SmsPush{
                 //请求成功在发送查单(七牛云查单，腾讯回调)
             if($service_id==1 && $insert['status']==1){
                 $data['message_id'] = $id;
-                RabbitmqHelper::getInstance()->pushDelayMsg($data,'query_sms_status',20);
+                RabbitmqHelper::getInstance()->pushDelayMsg($data,'query_sms_status',30);
+                $redis->set('qiniu_check_delay_'.$id,30);
+                $redis->expire('qiniu_check_delay_'.$id,400);
             }
           
             
