@@ -50,6 +50,7 @@ class SendController extends Apis
        
         $params['temp_id'] = $request->temp_id;
         $params['service_id'] = $service_params->service_id;
+        $params['distinct'] = $request->distinct;
         $count = count($sheetData);
         $insert = [
             'service' => $request->service_id,

@@ -76,6 +76,9 @@
                 <el-form-item label="时间间隔">
                     <el-input v-model="form.time"></el-input>
                 </el-form-item>
+                <el-form-item label="开启去重发送">
+                     <el-checkbox v-model="form.distinct" value='1'>去重发送</el-checkbox>
+                </el-form-item>
                 <el-form-item label="同时发送个数">
                     <el-input v-model="form.nums"></el-input>
                 </el-form-item>
@@ -114,7 +117,8 @@ export default {
                 temp_id:'',
                 time:'',
                 file:'',
-                nums:''
+                nums:'',
+                distinct:''
             },
             file:'',
             temp:[],
@@ -163,7 +167,8 @@ export default {
                 temp_id:'',
                 time:'',
                 file:'',
-                nums:''
+                nums:'',
+                distinct:'',
             }
             this.dialogVisible = true;
             this.delete();

@@ -25,11 +25,28 @@ class SmsPush{
         $redis = $this->getRedisInstance();
         RabbitmqHelper::getInstance()->listen($queue_name,function($data) use($class,$recordModel,$sendModel,$redis){
             $sendModel->addOne($data['params']['send_id']);
-            // var_dump($data);
+            var_dump($data);
             $check_params = [
                 'secretId' => $redis->get('secretId'),
                 'secretKey' => $redis->get('secretKey')
             ];
+
+            //去重复发送号码
+            if($data['params']['distinct'] === 'true') {
+                echo 'distinct'.PHP_EOL;
+                if($recordModel->where('mobile',$data['message'][0])->exists()) {
+                    $id = $recordModel->add([
+                        'mobile' => $data['message'][0],
+                        'temp_id' => $data['params']['temp_id'],
+                        'status' => 2,
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'reason' => "repeat mobile number",
+                        'service_id' => $data['params']['service_id']
+                    ]);
+                    return;
+                }
+            }
+
             //如果开启短信空号检测则检测
             if($redis->get('check_status')==='start'){
                 $result1 = EmptyCheck::check($data['message'][0],$check_params);
