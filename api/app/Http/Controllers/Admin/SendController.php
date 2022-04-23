@@ -117,6 +117,10 @@ class SendController extends Apis
         }
         RecordModel::updateRe($data[0]['sid'],$update);
     }
+    public function receive_callback(SendRequest $request) {
+        $data = $request->input();      
+        $this->logger(json_encode($data),'receive_callback');                                                  
+    }
     public function stopSmsPush(SendRequest $request){
         if($this->redis->set('sms_push_status_'.$request->id,'stop')){
             return $this->response([]);

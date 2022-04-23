@@ -27,6 +27,7 @@ Route::namespace('App\Http\Controllers\Admin')->group(function(){
     
     Route::Post('get_message_status','SendController@getMessageStatus');//获取发送记录
     Route::Post('callback','SendController@callback');//腾讯短信回调地址
+    Route::Post('receive_callback','SendController@receive_callback');//用户短信回复回调地址
     Route::Post('remain_num','EmptynumController@remainNum');//获取空号检测个数
     Route::Post('test','SendController@test');//获取空号检测个数
 });

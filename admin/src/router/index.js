@@ -92,6 +92,16 @@ export const constantRoutes = [
       meta: { title: '发送列表', icon: 'down' }
     }]
   },
+  {
+    path: '/短信回复',
+    component: Layout,
+    children: [{
+      path:"receive",
+      name: 'Receive',
+      component: () => import('@/views/receive/index'),
+      meta: { title: '短信回复列表', icon: 'down' }
+    }]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
